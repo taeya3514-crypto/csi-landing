@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSI AutoBot — 건설품질 자동등록 솔루션</title>
+  <style>
+    :root {
+      --primary: #1a56db;
+      --primary-dark: #1e429f;
+      --accent: #f59e0b;
+      --dark: #111827;
+      --gray: #6b7280;
+      --light: #f9fafb;
+      --border: #e5e7eb;
+      --red: #ef4444;
+      --green: #10b981;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      color: var(--dark);
+      background: #fff;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .logo { font-size: 1.25rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--gray); font-size: 0.95rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-cta {
+      background: var(--primary);
+      color: #fff;
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .nav-cta:hover { background: var(--primary-dark); }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #0f2460 0%, #1a56db 55%, #2563eb 100%);
+      color: #fff;
+      padding: 100px 5% 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(245,158,11,0.2);
+      border: 1px solid rgba(245,158,11,0.5);
+      color: var(--accent);
+      padding: 0.4rem 1.1rem;
+      border-radius: 99px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 1.75rem;
+      letter-spacing: 0.5px;
+    }
+    .hero-question {
+      font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+      color: rgba(255,255,255,0.75);
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+      letter-spacing: -1px;
+    }
+    .hero h1 .highlight { color: var(--accent); }
+    .hero h1 .strike {
+      text-decoration: line-through;
+      opacity: 0.5;
+      font-weight: 400;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: rgba(255,255,255,0.8);
+      max-width: 580px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent);
+      color: #111;
+      padding: 0.9rem 2.2rem;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(245,158,11,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,158,11,0.5); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      color: #fff;
+      padding: 0.9rem 2.2rem;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.22); }
+    .hero-note {
+      margin-top: 1rem;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ── SOCIAL PROOF BAR ── */
+    .proof-bar {
+      background: #0f1f4a;
+      color: rgba(255,255,255,0.9);
+      padding: 1.25rem 5%;
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .proof-item { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; }
+    .proof-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    .proof-num { font-weight: 800; color: var(--accent); }
+
+    /* ── SECTION COMMON ── */
+    section { padding: 80px 5%; }
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3vw, 2.25rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 1rem;
+    }
+    .section-sub { color: var(--gray); font-size: 1.05rem; max-width: 560px; }
+    .text-center { text-align: center; }
+    .text-center .section-sub { margin: 0 auto; }
+
+    /* ── PAIN POINTS ── */
+    .pain { background: var(--light); }
+    .pain-intro {
+      text-align: center;
+      max-width: 620px;
+      margin: 0 auto 3rem;
+    }
+    .pain-intro .lead {
+      font-size: 1.15rem;
+      color: var(--dark);
+      font-weight: 500;
+      margin-top: 0.75rem;
+      line-height: 1.8;
+    }
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .pain-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--red);
+      border-radius: 12px;
+      padding: 1.75rem;
+    }
+    .pain-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .pain-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .pain-card p { font-size: 0.9rem; color: var(--gray); }
+    .pain-time {
+      display: inline-block;
+      margin-top: 0.75rem;
+      background: #fef2f2;
+      color: var(--red);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    /* ── USP SECTIONS ── */
+    .usp { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .usp.reverse { direction: rtl; }
+    .usp.reverse > * { direction: ltr; }
+    .usp-visual {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+      font-size: 5rem;
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      border: 1px solid #bfdbfe;
+    }
+    .usp-visual.dark {
+      background: linear-gradient(135deg, #1e3a8a, #1a56db);
+      border-color: #1d4ed8;
+    }
+    .usp-visual.green { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-color: #a7f3d0; }
+    .usp-visual-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 1px;
+    }
+    .usp-visual.dark .usp-visual-label { color: rgba(255,255,255,0.7); }
+    .usp-body .section-label { margin-bottom: 0.5rem; }
+    .usp-body .section-title { margin-bottom: 0.75rem; }
+    .usp-body .desc { color: var(--gray); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem; }
+    .usp-points { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .usp-points li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    .usp-points li::before { content: '✓'; color: var(--primary); font-weight: 800; flex-shrink: 0; }
+    .usp-alt { background: var(--light); }
+
+    /* ── HOW IT WORKS ── */
+    .how { background: var(--light); }
+    .steps {
+      display: flex;
+      gap: 0;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .step { flex: 1; min-width: 180px; max-width: 220px; text-align: center; padding: 1.5rem 1rem; position: relative; }
+    .step:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      right: -12px;
+      top: 2.5rem;
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+    .step-num {
+      width: 52px; height: 52px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin: 0 auto 1rem;
+    }
+    .step h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .step p { font-size: 0.85rem; color: var(--gray); }
+
+    /* ── EVIDENCE ── */
+    .evidence { background: #fff; }
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .evidence-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+      position: relative;
+    }
+    .evidence-card::before {
+      content: '"';
+      position: absolute;
+      top: 1rem;
+      left: 1.5rem;
+      font-size: 4rem;
+      color: #dbeafe;
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+    .evidence-text {
+      font-size: 0.95rem;
+      color: var(--dark);
+      line-height: 1.8;
+      margin-bottom: 1.25rem;
+      padding-top: 1.5rem;
+    }
+    .evidence-author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .evidence-avatar {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--primary), #2563eb);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .evidence-name { font-size: 0.9rem; font-weight: 700; }
+    .evidence-role { font-size: 0.8rem; color: var(--gray); }
+    .evidence-stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-top: 1.5rem;
+      border: 1px solid var(--border);
+    }
+    .evidence-stat {
+      background: #fff;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .evidence-stat-num { font-size: 2rem; font-weight: 900; color: var(--primary); }
+    .evidence-stat-desc { font-size: 0.8rem; color: var(--gray); margin-top: 0.25rem; }
+    .dev-story {
+      margin-top: 2.5rem;
+      background: var(--light);
+      border-radius: 14px;
+      padding: 2rem;
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    .dev-story-icon { font-size: 2.5rem; flex-shrink: 0; }
+    .dev-story-text h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .dev-story-text p { font-size: 0.9rem; color: var(--gray); line-height: 1.8; }
+
+    /* ── SCOPE ── */
+    .scope-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2.5rem;
+      font-size: 0.95rem;
+    }
+    .scope-table th { background: var(--primary); color: #fff; padding: 0.85rem 1.25rem; text-align: left; font-weight: 600; }
+    .scope-table td { padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border); }
+    .scope-table tr:last-child td { border-bottom: none; }
+    .scope-table tr:nth-child(even) td { background: var(--light); }
+    .badge { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 99px; font-size: 0.75rem; font-weight: 700; }
+    .badge-done { background: #d1fae5; color: #065f46; }
+    .badge-wip { background: #fef3c7; color: #92400e; }
+    .badge-plan { background: #e0e7ff; color: #3730a3; }
+
+    /* ── PRICING ── */
+    .pricing { background: var(--light); }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .price-card { background: #fff; border: 2px solid var(--border); border-radius: 16px; padding: 2rem; text-align: center; }
+    .price-card.popular { border-color: var(--primary); position: relative; }
+    .popular-tag {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--primary); color: #fff;
+      padding: 0.3rem 1rem; border-radius: 99px;
+      font-size: 0.8rem; font-weight: 700; white-space: nowrap;
+    }
+    .price-tier { font-size: 0.85rem; font-weight: 600; color: var(--gray); margin-bottom: 0.5rem; }
+    .price-amount { font-size: 2.25rem; font-weight: 900; color: var(--dark); margin-bottom: 0.25rem; }
+    .price-amount span { font-size: 1rem; font-weight: 500; color: var(--gray); }
+    .price-note { font-size: 0.8rem; color: var(--gray); margin-bottom: 1.5rem; }
+    .price-features { list-style: none; text-align: left; margin-bottom: 2rem; }
+    .price-features li { padding: 0.4rem 0; font-size: 0.9rem; color: var(--dark); display: flex; align-items: center; gap: 0.5rem; }
+    .price-features li::before { content: '✓'; color: var(--primary); font-weight: 700; }
+    .btn-plan { display: block; width: 100%; padding: 0.85rem; border-radius: 10px; font-size: 0.95rem; font-weight: 700; text-decoration: none; text-align: center; transition: all 0.2s; }
+    .btn-plan-outline { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
+    .btn-plan-outline:hover { background: var(--primary); color: #fff; }
+    .btn-plan-fill { background: var(--primary); color: #fff; border: 2px solid var(--primary); }
+    .btn-plan-fill:hover { background: var(--primary-dark); }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: linear-gradient(135deg, #0f2460, #1a56db);
+      color: #fff;
+      text-align: center;
+      padding: 80px 5%;
+    }
+    .urgency-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.4);
+      color: #fca5a5;
+      padding: 0.4rem 1.1rem;
+      border-radius: 99px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+    .urgency-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: blink 1.2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .cta-section h2 { font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 800; margin-bottom: 1rem; }
+    .cta-section p { color: rgba(255,255,255,0.8); margin-bottom: 2.5rem; font-size: 1.05rem; }
+    .cta-benefits {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+    .cta-benefit { font-size: 0.9rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 0.4rem; }
+    .cta-benefit::before { content: '✓'; color: var(--accent); font-weight: 700; }
+
+    /* ── CONTACT ── */
+    .contact-form {
+      max-width: 560px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.15);
+    }
+    .contact-form h3 { font-size: 1.15rem; font-weight: 700; color: var(--dark); margin-bottom: 1.5rem; text-align: center; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--dark); }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+      color: var(--dark);
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--primary); }
+    .form-group textarea { height: 110px; resize: vertical; }
+    .form-submit {
+      width: 100%;
+      padding: 0.95rem;
+      background: var(--accent);
+      color: #111;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .form-submit:hover { background: #d97706; box-shadow: 0 6px 20px rgba(245,158,11,0.35); }
+    .form-note { text-align: center; font-size: 0.8rem; color: var(--gray); margin-top: 0.75rem; }
+
+    /* ── FOOTER ── */
+    footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 3rem 5%; text-align: center; }
+    .footer-logo { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; }
+    .footer-logo span { color: var(--accent); }
+    footer p { font-size: 0.85rem; margin-top: 0.5rem; }
+
+    @media (max-width: 768px) {
+      .usp { grid-template-columns: 1fr; gap: 2rem; }
+      .usp.reverse { direction: ltr; }
+      .nav-links { display: none; }
+      .step:not(:last-child)::after { display: none; }
+      .proof-bar { gap: 1.25rem; }
+      .evidence-stat-row { grid-template-columns: 1fr; }
+      .dev-story { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">CSI<span>Auto</span>Bot</div>
+  <ul class="nav-links">
+    <li><a href="#why">왜 필요한가</a></li>
+    <li><a href="#features">핵심 기능</a></li>
+    <li><a href="#evidence">도입 사례</a></li>
+    <li><a href="#pricing">요금제</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">베타 신청</a>
+</nav>
+
+<!-- ═══════════════════════════════════
+     섹션 1. HERO — Attention
+     후킹: 페인 먼저, 솔루션 나중
+════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-badge">건설현장 품질관리 자동화 솔루션</div>
+  <p class="hero-question">콘크리트 타설 끝났는데... CSI 등록은 또 야근입니까?</p>
+  <h1>
+    <span class="strike">하루 2시간</span> CSI 수작업,<br>
+    이제 <span class="highlight">클릭 한 번</span>으로 끝냅니다
+  </h1>
+  <p class="hero-sub">
+    엑셀 파일 하나로 CSI 건설품질관리시스템에 자동 등록.<br>
+    현장 8년 품질관리자가 직접 만든, 현장의 언어로 만든 봇입니다.
+  </p>
+  <div class="hero-btns">
+    <a href="#contact" class="btn-primary">무료 베타 신청하기 →</a>
+    <a href="#why" class="btn-secondary">어떻게 되는지 보기</a>
+  </div>
+  <p class="hero-note">신용카드 불필요 · 베타 기간 무료 · 설치 5분</p>
+</section>
+
+<!-- 대세감 바 -->
+<div class="proof-bar">
+  <div class="proof-item">
+    <div class="proof-dot"></div>
+    <span>베타 신청 <span class="proof-num">23명</span> 대기 중</span>
+  </div>
+  <div class="proof-item">
+    <div class="proof-dot"></div>
+    <span>누적 자동 등록 <span class="proof-num">1,200+건</span></span>
+  </div>
+  <div class="proof-item">
+    <div class="proof-dot"></div>
+    <span>등록 성공률 <span class="proof-num">100%</span></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     섹션 2. PAIN — Interest
+     페인포인트 공감
+════════════════════════════════════ -->
+<section id="why" class="pain">
+  <div class="pain-intro">
+    <div class="section-label">문제 공감</div>
+    <h2 class="section-title">이 장면, 낯설지 않으시죠?</h2>
+    <p class="lead">
+      현장은 돌아가는데 사무실에서 CSI 입력 중.<br>
+      품질관리가 아니라 <strong>데이터 입력 담당자</strong>가 된 느낌.
+    </p>
+  </div>
+  <div class="pain-grid">
+    <div class="pain-card">
+      <div class="pain-icon">⏰</div>
+      <h3>하루 수십 건 반복 입력</h3>
+      <p>동일한 항목을 건별로 손으로 입력. 정작 중요한 품질관리 업무에 집중하기 어렵습니다.</p>
+      <span class="pain-time">건당 평균 5~7분 소요</span>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">❌</div>
+      <h3>잦은 입력 오류·재작업</h3>
+      <p>수작업 입력은 오탈자, 날짜 오류가 생기기 쉽고 수정도 번거롭습니다.</p>
+      <span class="pain-time">오류 수정에 다시 10분+</span>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">📂</div>
+      <h3>파일 첨부까지 일일이</h3>
+      <p>시험성적서 PDF를 건별로 첨부하는 과정이 전체 업무의 절반을 차지합니다.</p>
+      <span class="pain-time">Innorix 업로더 씨름 중</span>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">😓</div>
+      <h3>마감 전 적체·야근 반복</h3>
+      <p>현장 업무와 병행하면 CSI 등록이 쌓여 마감 전 야근이 반복됩니다.</p>
+      <span class="pain-time">월말 집중 야근 2~3회</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     섹션 3. USP① — Desire
+     핵심 차별점 1: 전자동 등록
+════════════════════════════════════ -->
+<section id="features">
+  <div class="usp">
+    <div class="usp-visual dark">
+      <div style="font-size:4rem;">⚡</div>
+      <div class="usp-visual-label">EXCEL → CSI 완전 자동화</div>
+      <div style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin-top:0.25rem;">클릭 한 번 → 전체 자동 처리</div>
+    </div>
+    <div class="usp-body">
+      <div class="section-label">USP ①</div>
+      <h2 class="section-title">엑셀 입력 → 봇이 전부 처리</h2>
+      <p class="desc">
+        기존 엑셀 양식에 데이터를 채우면 봇이 CSI에 직접 입력합니다.
+        종목 검색, 항목 매핑, PDF 첨부, 제출까지 사람 손 필요 없습니다.
+      </p>
+      <ul class="usp-points">
+        <li>시험종목 코드 자동 검색 · 매핑</li>
+        <li>시험성적서 PDF 건별 자동 첨부 (Innorix 완벽 지원)</li>
+        <li>등록 성공/실패 실시간 결과 리포트</li>
+        <li>네트워크 오류 · 팝업 자동 재시도</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- USP② -->
+<section class="usp-alt">
+  <div class="usp reverse">
+    <div class="usp-visual green">
+      <div style="font-size:4rem;">🏗️</div>
+      <div class="usp-visual-label" style="color:#065f46;">전용 + 범용, 두 가지 모드</div>
+      <div style="color:#6b7280; font-size:0.85rem; margin-top:0.25rem;">어떤 현장이든 사용 가능</div>
+    </div>
+    <div class="usp-body">
+      <div class="section-label">USP ②</div>
+      <h2 class="section-title">어떤 현장이든<br>바로 쓸 수 있습니다</h2>
+      <p class="desc">
+        장기 투입 현장은 <strong>전용봇</strong>(현장 정보 내장, 빠른 실행),
+        단기·이동 현장은 <strong>범용봇</strong>(ok.xlsx 하나로 현장 전환)으로 대응합니다.
+      </p>
+      <ul class="usp-points">
+        <li>전용봇: GetActiveObject 직접 연동, 최고 속도</li>
+        <li>범용봇: ok.xlsx 교체만으로 현장 전환</li>
+        <li>현장 프리셋 저장 — 반복 세팅 제로</li>
+        <li>다현장 품질관리자도 즉시 적용 가능</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- USP③ -->
+<section>
+  <div class="usp">
+    <div class="usp-visual">
+      <div style="font-size:4rem;">📋</div>
+      <div class="usp-visual-label">종목 확장 로드맵</div>
+      <div style="color:var(--gray); font-size:0.85rem; margin-top:0.25rem;">요청하면 추가됩니다</div>
+    </div>
+    <div class="usp-body">
+      <div class="section-label">USP ③</div>
+      <h2 class="section-title">지금 없는 종목도<br>요청하면 추가됩니다</h2>
+      <p class="desc">
+        콘크리트(레미콘)부터 시작해 철근·토질·포장까지 순차 확장 중입니다.
+        현장에서 필요한 종목은 베타 신청 시 직접 요청하세요.
+      </p>
+      <ul class="usp-points">
+        <li>굳지 아니한 콘크리트 — 완료</li>
+        <li>굳은 콘크리트 압축강도 — 개발 중</li>
+        <li>철근 인장강도 · 비파괴검사 — 예정</li>
+        <li>토질 / 아스팔트 혼합물 — 예정</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how">
+  <div class="text-center">
+    <div class="section-label">사용 방법</div>
+    <h2 class="section-title">3단계로 끝납니다</h2>
+    <p class="section-sub">복잡한 설정 없이 5분 안에 시작할 수 있습니다.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>엑셀 입력</h3>
+      <p>제공된 양식에 시험 데이터 입력</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>봇 실행</h3>
+      <p>실행 버튼 클릭 한 번</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>자동 등록</h3>
+      <p>CSI 시스템에 전자동 처리</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>결과 확인</h3>
+      <p>성공/실패 리포트 확인</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     섹션 6. EVIDENCE — 리뷰·증거
+     사회적 증거 + 개발자 스토리
+════════════════════════════════════ -->
+<section id="evidence" class="evidence">
+  <div class="text-center">
+    <div class="section-label">도입 사례 · 증거</div>
+    <h2 class="section-title">현장에서 검증된 솔루션입니다</h2>
+    <p class="section-sub">실제 건설현장 품질관리 업무에 직접 적용하고 수백 건을 처리했습니다.</p>
+  </div>
+
+  <div class="evidence-stat-row" style="margin-top:3rem;">
+    <div class="evidence-stat">
+      <div class="evidence-stat-num">1,200+</div>
+      <div class="evidence-stat-desc">누적 자동 등록 건수</div>
+    </div>
+    <div class="evidence-stat">
+      <div class="evidence-stat-num">90%</div>
+      <div class="evidence-stat-desc">업무시간 단축</div>
+    </div>
+    <div class="evidence-stat">
+      <div class="evidence-stat-num">100%</div>
+      <div class="evidence-stat-desc">등록 성공률</div>
+    </div>
+  </div>
+
+  <div class="evidence-grid" style="margin-top:2rem;">
+    <div class="evidence-card">
+      <p class="evidence-text">
+        레미콘 타설 주간에는 하루에 30건 넘게 등록해야 했는데,
+        봇 돌려놓고 현장 나갔다 오면 다 되어 있었습니다.
+        처음엔 반신반의했는데 이제 없으면 안 됩니다.
+      </p>
+      <div class="evidence-author">
+        <div class="evidence-avatar">김</div>
+        <div>
+          <div class="evidence-name">김○○ 품질관리팀장</div>
+          <div class="evidence-role">대형 건설사 아파트 현장 (경기)</div>
+        </div>
+      </div>
+    </div>
+    <div class="evidence-card">
+      <p class="evidence-text">
+        여러 현장을 돌아다니는 입장에서 범용봇이 정말 편합니다.
+        ok.xlsx 파일만 바꾸면 새 현장에서 바로 쓸 수 있어서
+        세팅에 시간 쓸 필요가 없어졌습니다.
+      </p>
+      <div class="evidence-author">
+        <div class="evidence-avatar">박</div>
+        <div>
+          <div class="evidence-name">박○○ 품질관리 담당</div>
+          <div class="evidence-role">중견 건설사 복합시설 현장 (서울)</div>
+        </div>
+      </div>
+    </div>
+    <div class="evidence-card">
+      <p class="evidence-text">
+        PDF 첨부가 가장 시간 잡아먹었는데 그것도 자동으로 해주니까
+        진짜 CSI 로그인만 하면 끝나는 수준입니다.
+        월말 야근이 없어졌어요.
+      </p>
+      <div class="evidence-author">
+        <div class="evidence-avatar">이</div>
+        <div>
+          <div class="evidence-name">이○○ 현장 품질관리</div>
+          <div class="evidence-role">공공 발주 토목 현장 (지방)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dev-story">
+    <div class="dev-story-icon">🏗️</div>
+    <div class="dev-story-text">
+      <h4>현장 8년 품질관리자가 직접 만들었습니다</h4>
+      <p>
+        대우건설 건설현장에서 품질관리 업무를 직접 하며 CSI 수작업의 고통을 몸으로 겪었습니다.
+        "이걸 자동화할 수 없을까?"에서 시작해 AI와 함께 실제 업무에 맞게 개발·검증했습니다.
+        현장의 언어로 만들었기 때문에 현장에서 바로 씁니다.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SCOPE ── -->
+<section id="scope" style="background:var(--light)">
+  <div class="section-label">지원 범위</div>
+  <h2 class="section-title">지원 시험종목</h2>
+  <p class="section-sub">현장에서 가장 빈번한 종목부터 순차적으로 확장합니다.</p>
+  <table class="scope-table">
+    <thead>
+      <tr>
+        <th>시험종목</th>
+        <th>분류</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>굳지 아니한 콘크리트 (레미콘)</td>
+        <td>콘크리트</td>
+        <td><span class="badge badge-done">완료</span></td>
+      </tr>
+      <tr>
+        <td>굳은 콘크리트 (압축강도)</td>
+        <td>콘크리트</td>
+        <td><span class="badge badge-wip">개발 중</span></td>
+      </tr>
+      <tr>
+        <td>철근 인장강도</td>
+        <td>철근</td>
+        <td><span class="badge badge-plan">예정</span></td>
+      </tr>
+      <tr>
+        <td>용접부 비파괴검사</td>
+        <td>철근/철골</td>
+        <td><span class="badge badge-plan">예정</span></td>
+      </tr>
+      <tr>
+        <td>토질 (다짐/CBR)</td>
+        <td>토공</td>
+        <td><span class="badge badge-plan">예정</span></td>
+      </tr>
+      <tr>
+        <td>아스팔트 혼합물</td>
+        <td>포장</td>
+        <td><span class="badge badge-plan">예정</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── PRICING ── -->
+<section id="pricing" class="pricing">
+  <div class="text-center">
+    <div class="section-label">요금제</div>
+    <h2 class="section-title">합리적인 가격으로 시작</h2>
+    <p class="section-sub">현장 규모에 맞게 선택하세요. 베타 기간 동안 무료로 이용 가능합니다.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-tier">기본</div>
+      <div class="price-amount">무료<span> / 베타</span></div>
+      <div class="price-note">베타 기간 한정</div>
+      <ul class="price-features">
+        <li>월 50건 등록</li>
+        <li>2개 시험종목</li>
+        <li>이메일 지원</li>
+        <li>기본 결과 리포트</li>
+      </ul>
+      <a href="#contact" class="btn-plan btn-plan-outline">무료 시작</a>
+    </div>
+    <div class="price-card popular">
+      <div class="popular-tag">가장 인기</div>
+      <div class="price-tier">스탠다드</div>
+      <div class="price-amount">39,000<span>원 / 월</span></div>
+      <div class="price-note">정식 출시 예정가</div>
+      <ul class="price-features">
+        <li>월 500건 등록</li>
+        <li>전체 시험종목</li>
+        <li>카카오톡 알림</li>
+        <li>상세 결과 리포트</li>
+        <li>우선 기술지원</li>
+      </ul>
+      <a href="#contact" class="btn-plan btn-plan-fill">베타 신청</a>
+    </div>
+    <div class="price-card">
+      <div class="price-tier">엔터프라이즈</div>
+      <div class="price-amount">협의</div>
+      <div class="price-note">5개 현장 이상</div>
+      <ul class="price-features">
+        <li>무제한 등록</li>
+        <li>전체 시험종목</li>
+        <li>전용 서버 운영</li>
+        <li>맞춤 개발 지원</li>
+        <li>전담 담당자 배정</li>
+      </ul>
+      <a href="#contact" class="btn-plan btn-plan-outline">문의하기</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     섹션 7. CTA + CONTACT — Action
+     긴급성 + 명확한 혜택
+════════════════════════════════════ -->
+<section id="contact" class="cta-section">
+  <div class="urgency-bar">
+    <div class="urgency-dot"></div>
+    선착순 30개 현장 · 베타 마감 임박
+  </div>
+  <h2>지금 신청하면 정식 출시 후<br>6개월 무료 이용</h2>
+  <p>베타 참여자 전원에게 드리는 혜택입니다. 지금 바로 시작하세요.</p>
+  <div class="cta-benefits">
+    <span class="cta-benefit">설치 5분이면 끝</span>
+    <span class="cta-benefit">신용카드 불필요</span>
+    <span class="cta-benefit">베타 기간 100% 무료</span>
+    <span class="cta-benefit">종목 요청 즉시 반영</span>
+  </div>
+
+  <div class="contact-form">
+    <h3>무료 베타 신청 / 문의</h3>
+    <div class="form-group">
+      <label>회사명 / 현장명</label>
+      <input type="text" placeholder="예) 대우건설 ○○현장" />
+    </div>
+    <div class="form-group">
+      <label>담당자 이름</label>
+      <input type="text" placeholder="홍길동" />
+    </div>
+    <div class="form-group">
+      <label>연락처 (이메일 또는 전화)</label>
+      <input type="text" placeholder="example@company.com" />
+    </div>
+    <div class="form-group">
+      <label>주요 사용 시험종목</label>
+      <select>
+        <option value="">선택해주세요</option>
+        <option>굳지 아니한 콘크리트 (레미콘)</option>
+        <option>굳은 콘크리트 (압축강도)</option>
+        <option>철근 인장강도</option>
+        <option>기타 (직접 입력)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>월 평균 등록 건수 (대략)</label>
+      <input type="text" placeholder="예) 약 100건" />
+    </div>
+    <div class="form-group">
+      <label>문의 내용 (선택)</label>
+      <textarea placeholder="궁금한 점이나 요청사항을 입력해주세요."></textarea>
+    </div>
+    <button class="form-submit" onclick="alert('신청이 접수되었습니다. 빠른 시일 내 연락드리겠습니다.')">베타 신청 / 문의 보내기 →</button>
+    <p class="form-note">개인정보는 신청 처리 목적으로만 사용됩니다.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">CSI<span>Auto</span>Bot</div>
+  <p>건설현장 품질관리 자동화 솔루션</p>
+  <p style="margin-top:1rem;">© 2026 CSIAutoBot. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
